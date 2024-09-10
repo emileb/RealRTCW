@@ -3342,6 +3342,10 @@ int CL_ScaledMilliseconds( void ) {
 	return Sys_Milliseconds() * com_timescale->value;
 }
 
+#ifdef __ANDROID__
+extern const char *nativeLibsPath;
+#endif
+
 /*
 ============
 CL_InitRef
@@ -3359,7 +3363,12 @@ void CL_InitRef( void ) {
 
 #ifdef USE_RENDERER_DLOPEN
 	cl_renderer = Cvar_Get("cl_renderer", "opengl1", CVAR_ARCHIVE | CVAR_LATCH ); // removed cvar protected
+#ifdef __ANDROID__
 
+	Com_sprintf(dllName, sizeof(dllName), "%s/librealrtcw_renderer.so", nativeLibsPath);
+	rendererLib = Sys_LoadDll(dllName, qtrue);
+
+#else
 	Com_sprintf(dllName, sizeof(dllName), "renderer_sp_%s_" ARCH_STRING DLL_EXT, cl_renderer->string);
 
 	if(!(rendererLib = Sys_LoadDll(dllName, qfalse)) && strcmp(cl_renderer->string, cl_renderer->resetString))
@@ -3370,6 +3379,7 @@ void CL_InitRef( void ) {
 		Com_sprintf(dllName, sizeof(dllName), "renderer_sp_opengl1_" ARCH_STRING DLL_EXT);
 		rendererLib = Sys_LoadDll(dllName, qfalse);
 	}
+#endif
 
 	if(!rendererLib)
 	{

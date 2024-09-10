@@ -1122,6 +1122,10 @@ void GLimp_Init( qboolean fixedFunction )
 		ri.Cvar_Set( "com_abnormalExit", "0" );
 	}
 
+#ifdef __ANDROID__
+	ri.Cvar_Set( "r_mode", "-1" );
+#endif
+
 	ri.Sys_GLimpInit( );
 
 	// Create the window and set up the context
