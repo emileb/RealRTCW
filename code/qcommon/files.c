@@ -285,6 +285,10 @@ static	cvar_t		*fs_steampath;
 static	cvar_t		*fs_workshop;
 #endif
 
+#ifdef __ANDROID__
+static	cvar_t		*fs_androidpath;
+#endif
+
 static cvar_t      *fs_basepath;
 static cvar_t      *fs_basegame;
 static cvar_t      *fs_gamedirvar;
@@ -562,14 +566,14 @@ Creates any directories needed to store the given filename
 qboolean FS_CreatePath (char *OSPath) {
 	char    *ofs;
 	char	path[MAX_OSPATH];
-
+#ifndef __ANDROID__
 	// make absolutely sure that it can't back up the path
 	// FIXME: is c: allowed???
 	if ( strstr( OSPath, ".." ) || strstr( OSPath, "::" ) ) {
 		Com_Printf( "WARNING: refusing to create relative path \"%s\"\n", OSPath );
 		return qtrue;
 	}
-
+#endif
 	Q_strncpyz( path, OSPath, sizeof( path ) );
 	FS_ReplaceSeparators( path );
 
@@ -923,6 +927,21 @@ long FS_SV_FOpenFileRead(const char *filename, fileHandle_t *fp)
 
 #endif
 
+#ifdef __ANDROID__
+		if (!fsh[f].handleFiles.file.o && fs_androidpath->string[0])
+		{
+			ospath = FS_BuildOSPath( fs_androidpath->string, filename, "" );
+			ospath[strlen(ospath)-1] = '\0';
+
+			if ( fs_debug->integer )
+			{
+				Com_Printf( "FS_SV_FOpenFileRead (fs_androidpath): %s\n", ospath );
+			}
+
+			fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "rb" );
+			fsh[f].handleSync = qfalse;
+		}
+#endif
 		if ( !fsh[f].handleFiles.file.o )
 		{
 			f = 0;
@@ -1701,8 +1720,11 @@ int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, i
 
 			if(enableDll)
 			{
+#ifdef __ANDROID__
+				netpath = dllName;
+#else
 				netpath = FS_BuildOSPath(dir->path, dir->gamedir, dllName);
-
+#endif
 				if(FS_FileInPathExists(netpath))
 				{
 					Q_strncpyz(found, netpath, foundlen);
@@ -2865,6 +2887,9 @@ int	FS_GetAddonList( char *listbuf, int bufsize ) {
 	pFiles2 = Sys_ListFiles( fs_steampath->string, NULL, NULL, &dummy, qtrue );
 	pFiles6 = Sys_ListFiles( fs_workshop->string, NULL, NULL, &dummy, qtrue );
 #endif
+#ifdef __ANDROID__
+	pFiles2 = Sys_ListFiles( fs_androidpath->string, NULL, NULL, &dummy, qtrue );
+#endif
 	// we searched for mods in up to four paths
 	// it is likely that we have duplicate names now, which we will cleanup below
 #ifndef STANDALONE
@@ -2945,6 +2970,16 @@ int	FS_GetAddonList( char *listbuf, int bufsize ) {
 
 #endif
 
+#ifdef __ANDROID__
+			/* try on android path */
+			if ( nPaks <= 0 )
+			{
+				path = FS_BuildOSPath( fs_androidpath->string, name, "" );
+				nPaks = 0;
+				pPaks = Sys_ListFiles( path, ".pk3", NULL, &nPaks, qfalse );
+				Sys_FreeFileList( pPaks );
+			}
+#endif
 			if (nPaks > 0) {
 				nLen = strlen(name) + 1;
 				// nLen is the length of the mod path
@@ -3679,6 +3714,13 @@ static void FS_Startup( const char *gameName )
 	FS_AddModDirectories();
 #endif
 
+#ifdef __ANDROID__
+	fs_androidpath =  Cvar_Get ("fs_androidpath", "", CVAR_INIT|CVAR_PROTECTED );
+	if (fs_androidpath->string[0]) {
+		FS_AddGameDirectory( fs_androidpath->string, gameName );
+	}
+#endif
+
 
 	if ( fs_basepath->string[0] ) {
 		FS_AddGameDirectory( fs_basepath->string, gameName );
@@ -3706,6 +3748,11 @@ static void FS_Startup( const char *gameName )
 		}
 #endif
 
+#ifdef __ANDROID__
+		if ( fs_androidpath->string[0] ) {
+			FS_AddGameDirectory( fs_androidpath->string, fs_basegame->string );
+		}
+#endif
 		if ( fs_basepath->string[0] ) {
 			FS_AddGameDirectory( fs_basepath->string, fs_basegame->string );
 		}
@@ -3725,6 +3772,12 @@ static void FS_Startup( const char *gameName )
 			FS_AddGameDirectory( fs_workshop->string, fs_gamedirvar->string );
 		}
 
+#endif
+
+#ifdef __ANDROID__
+		if ( fs_androidpath->string[0] ) {
+			FS_AddGameDirectory( fs_androidpath->string, fs_gamedirvar->string );
+		}
 #endif
 		if ( fs_basepath->string[0] ) {
 			FS_AddGameDirectory( fs_basepath->string, fs_gamedirvar->string );

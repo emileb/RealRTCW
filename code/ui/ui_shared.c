@@ -92,6 +92,10 @@ static qboolean Menu_OverActiveItem( menuDef_t *menu, float x, float y );
 #define MEM_POOL_SIZE  2048 * 1024
 #endif
 
+#ifdef __ANDROID__
+int g_snapMenuItems = 0;
+#endif
+
 static char memoryPool[MEM_POOL_SIZE];
 static int allocPoint, outOfMemory;
 
@@ -4584,6 +4588,30 @@ void Item_Paint( itemDef_t *item ) {
 	case ITEM_TYPE_NUMERICFIELD:
 	case ITEM_TYPE_VALIDFILEFIELD:      //----(SA)	added
 		Item_TextField_Paint( item );
+#ifdef __ANDROID__ // Draw another textbox near the top
+		if ( item->window.flags & WINDOW_HASFOCUS && g_editingField )
+		{
+			float tempx = item->textRect.x;
+			float tempy = item->textRect.y;
+
+			item->textRect.x = 200;
+			item->textRect.y = 125;
+
+			float color[4];
+			color[0] = 0;
+			color[1] = 0;
+			color[2] = 0;
+			color[3] = 1;
+			DC->fillRect(item->textRect.x - 20,item->textRect.y - 40,300,65,color);
+			color[0] = 1;
+			DC->drawRect(item->textRect.x - 20,item->textRect.y - 40,300,65,1,color);
+
+			Item_TextField_Paint( item );
+
+			item->textRect.x = tempx;
+			item->textRect.y = tempy;
+		}
+#endif
 		break;
 	case ITEM_TYPE_COMBO:
 		break;
@@ -4732,6 +4760,94 @@ void Item_Init( itemDef_t *item ) {
 	Window_Init( &item->window );
 }
 
+#ifdef __ANDROID__
+itemDef_t * Menu_FindCloseItem(menuDef_t *menu, float x, float y)
+{
+	int i;
+
+	//Find the closest item
+	float closestDist = FLT_MAX;
+	itemDef_t *closestItem = NULL;
+	for ( i = 0; i < menu->itemCount; i++ ) {
+
+		if ( !( menu->items[i]->window.flags & ( WINDOW_VISIBLE | WINDOW_FORCED ) ) ) {
+			continue;
+		}
+
+		// items can be enabled and disabled based on cvars
+		if ( menu->items[i]->cvarFlags & ( CVAR_ENABLE | CVAR_DISABLE ) && !Item_EnableShowViaCvar( menu->items[i], CVAR_ENABLE ) ) {
+			continue;
+		}
+
+		if ( menu->items[i]->cvarFlags & ( CVAR_SHOW | CVAR_HIDE ) && !Item_EnableShowViaCvar( menu->items[i], CVAR_SHOW ) ) {
+			continue;
+		}
+
+		if ( !IsVisible(  menu->items[i]->window.flags ) )
+			continue;
+
+		if ( ( menu->items[i]->window.flags & WINDOW_DECORATION))
+			continue;
+
+		itemDef_t *item =  menu->items[i];
+
+		float dist;
+
+		if ( Rect_ContainsPoint(&item->window.rect, x, y)  ){
+			//Is inside to def the closest
+			dist = 0;
+		} else {
+
+			// Find the shortest distance to the item
+			// Top/Bottom edge
+			if ((x >= item->window.rect.x) && (x < item->window.rect.x + item->window.rect.w)) {
+				//LOGI("TB");
+
+				if (y < item->window.rect.y) {
+					dist =   fabs (y - (item->window.rect.y));
+				} else {
+					dist = fabs (y - (item->window.rect.y + item->window.rect.h));
+				}
+			} //Left/Right edge
+			else if ((y >= item->window.rect.y) && (y < item->window.rect.y + item->window.rect.h))	{
+				if (x < item->window.rect.x)
+				{
+					dist =   fabs (x - (item->window.rect.x));
+				}
+				else
+				{
+					dist = fabs (x - (item->window.rect.x + item->window.rect.w));
+				}
+			} else {
+				float cx,cy;
+				if (x < item->window.rect.x)
+					cx = item->window.rect.x;
+				else
+					cx = item->window.rect.x + item->window.rect.w;
+
+
+				if (y < item->window.rect.y)
+					cy = item->window.rect.y;
+				else
+					cy = item->window.rect.y + item->window.rect.h;
+
+				dist =  sqrt((fabs(x-cx) * fabs(x-cx) + fabs(y-cy) * fabs(y-cy)));
+			}
+		}
+
+		if (dist < closestDist){
+			closestDist = dist;
+			closestItem = item;
+		}
+	}
+
+	if(closestDist > 20)
+		closestItem = NULL;
+
+	return closestItem;
+}
+#endif
+
 void Menu_HandleMouseMove( menuDef_t *menu, float x, float y ) {
 	int i, pass;
 	qboolean focusSet = qfalse;
@@ -4753,6 +4869,21 @@ void Menu_HandleMouseMove( menuDef_t *menu, float x, float y ) {
 	if ( g_waitingForKey || g_editingField ) {
 		return;
 	}
+
+#ifdef __ANDROID__
+	if(g_snapMenuItems)
+	{
+        itemDef_t *closestItem  = Menu_FindCloseItem(menu, x, y);
+        if(closestItem)
+        {
+          	x = closestItem->window.rect.x + closestItem->window.rect.w/2;
+			y = closestItem->window.rect.y + closestItem->window.rect.h/2;
+			//Is this safe?? Seems to work
+			DC->cursorx = x;
+			DC->cursory = y;
+        }
+	}
+#endif
 
 	// FIXME: this is the whole issue of focus vs. mouse over..
 	// need a better overall solution as i don't like going through everything twice

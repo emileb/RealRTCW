@@ -442,6 +442,10 @@ void Sys_Error( const char *error, ... )
 	Q_vsnprintf (string, sizeof(string), error, argptr);
 	va_end (argptr);
 
+#ifdef __ANDROID__
+	CON_Print( string );
+#endif
+
 	Sys_ErrorDialog( string );
 
 	Sys_Exit( 3 );
@@ -690,7 +694,11 @@ void Sys_SigHandler( int signal )
 main
 =================
 */
+#ifdef __ANDROID__
+int main_android( int argc, char **argv )
+#else
 int main( int argc, char **argv )
+#endif
 {
 	int   i;
 	char  commandLine[ MAX_STRING_CHARS ] = { 0 };
@@ -759,13 +767,13 @@ int main( int argc, char **argv )
 	CON_Init( );
 	Com_Init( commandLine );
 	NET_Init( );
-
+#ifndef __ANDROID__
 	signal( SIGILL, Sys_SigHandler );
 	signal( SIGFPE, Sys_SigHandler );
 	signal( SIGSEGV, Sys_SigHandler );
 	signal( SIGTERM, Sys_SigHandler );
 	signal( SIGINT, Sys_SigHandler );
-
+#endif
 	while( 1 )
 	{
 		Com_Frame( );

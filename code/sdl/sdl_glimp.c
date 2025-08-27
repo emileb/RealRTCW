@@ -1122,6 +1122,10 @@ void GLimp_Init( qboolean fixedFunction )
 		ri.Cvar_Set( "com_abnormalExit", "0" );
 	}
 
+#ifdef __ANDROID__
+	ri.Cvar_Set( "r_mode", "-1" );
+#endif
+
 	ri.Sys_GLimpInit( );
 
 	// Create the window and set up the context
@@ -1218,7 +1222,13 @@ void GLimp_EndFrame( void )
 	// don't flip if drawing to front buffer
 	if ( Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) != 0 )
 	{
+#ifdef __ANDROID__
+		qglDisable( GL_DEPTH_TEST );
+#endif
 		SDL_GL_SwapWindow( SDL_window );
+#ifdef __ANDROID__
+		qglEnable( GL_DEPTH_TEST );
+#endif
 	}
 
 	if( r_fullscreen->modified )
