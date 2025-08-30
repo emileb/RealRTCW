@@ -29,6 +29,7 @@ PROJECT_FILES +=    game/g_main.c \
                     game/ai_dmq3.c \
                     game/ai_main.c \
                     game/ai_team.c \
+                    game/ai_cast_survival.c \
                     game/bg_animation.c \
                     game/bg_misc.c \
                     game/bg_pmove.c \
@@ -58,6 +59,9 @@ PROJECT_FILES +=    game/g_main.c \
                     game/g_trigger.c \
                     game/g_utils.c \
                     game/g_weapon.c \
+                    game/g_survival_score.c \
+                    game/g_survival_misc.c \
+                    game/g_survival_buy.c \
                     qcommon/q_math.c \
                     qcommon/q_shared.c \
                     game/g_syscalls.c \

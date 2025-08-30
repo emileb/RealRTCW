@@ -63,6 +63,11 @@ static int KeyIsDown(kbutton_t *b)
     return b->active;
 }
 
+bool PortableSetAlwaysRun(bool run)
+{
+    return false;
+}
+
 extern kbutton_t kb[NUM_BUTTONS];
 
 
