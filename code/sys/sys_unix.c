@@ -86,7 +86,7 @@ char *Sys_DefaultHomePath(void)
 #elif __ANDROID__
         {
 			 p1 = getenv( "USER_FILES" );
-			 Com_sprintf(homePath, sizeof(homePath), "%s/iortcw", p1);
+			 Com_sprintf(homePath, sizeof(homePath), "%s/realrtcw", p1);
 		};
 #else
 #ifdef USE_XDG
