@@ -3365,7 +3365,7 @@ void CL_InitRef( void ) {
 	cl_renderer = Cvar_Get("cl_renderer", "opengl1", CVAR_ARCHIVE | CVAR_LATCH ); // removed cvar protected
 #ifdef __ANDROID__
 
-	Com_sprintf(dllName, sizeof(dllName), "%s/librealrtcw_renderer.so", nativeLibsPath);
+	Com_sprintf(dllName, sizeof(dllName), "%s/librealrtcw_renderer_5.0.so", nativeLibsPath);
 	rendererLib = Sys_LoadDll(dllName, qtrue);
 
 #else

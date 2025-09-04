@@ -1020,7 +1020,7 @@ Sys_GetDLLName
 */
 char* Sys_GetDLLName( const char *name ) {
 #ifdef __ANDROID__
-	return va("%s/librealrtcw_%s.sp.so", nativeLibsPath, name);
+	return va("%s/librealrtcw_%s.sp_5.0.so", nativeLibsPath, name);
 #else
 	return va("%s.sp." ARCH_STRING DLL_EXT, name);
 #endif

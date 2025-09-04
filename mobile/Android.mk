@@ -4,7 +4,7 @@ LOCAL_PATH := $(RTCW_LOCAL_PATH)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := realrtcw
+LOCAL_MODULE := realrtcw_5.0
 
 RTCW_LOCAL_CFLAGS :=  -DQUAKE3 -DENGINE_NAME=\"realrtcw\" -Wall -fno-strict-aliasing -pipe -DUSE_ICON -DARCH_STRING=\"arm\" -DUSE_OPENGLES -DNO_VM_COMPILED -DNO_GZIP \
                                                        -DUSE_INTERNAL_JPEG -DUSE_FILE32API \
@@ -101,15 +101,15 @@ LOCAL_SRC_FILES =  $(PROJECT_FILES)
 
 
 LOCAL_LDLIBS := -lEGL -ldl -llog -lOpenSLES -lz -lGLESv1_CM
-LOCAL_STATIC_LIBRARIES := sigc libzip libpng logwritter  SDL2_net iortcw_botlib.sp
+LOCAL_STATIC_LIBRARIES := sigc libzip libpng logwritter  SDL2_net realrtcw_botlib.sp_5.0
 LOCAL_SHARED_LIBRARIES := touchcontrols SDL2  SDL2_mixer core_shared saffal
 
 
 include $(BUILD_SHARED_LIBRARY)
 
-include $(TOP_DIR)/Alpha/RealRTCW/mobile/Android_renderer.mk
-include $(TOP_DIR)/Alpha/RealRTCW/mobile/Android_ui.mk
-include $(TOP_DIR)/Alpha/RealRTCW/mobile/Android_cgame.mk
-include $(TOP_DIR)/Alpha/RealRTCW/mobile/Android_game.mk
-include $(TOP_DIR)/Alpha/RealRTCW/mobile/Android_botlib.mk
+include $(TOP_DIR)/Alpha/RealRTCW_5.0/mobile/Android_renderer.mk
+include $(TOP_DIR)/Alpha/RealRTCW_5.0/mobile/Android_ui.mk
+include $(TOP_DIR)/Alpha/RealRTCW_5.0/mobile/Android_cgame.mk
+include $(TOP_DIR)/Alpha/RealRTCW_5.0/mobile/Android_game.mk
+include $(TOP_DIR)/Alpha/RealRTCW_5.0/mobile/Android_botlib.mk
 

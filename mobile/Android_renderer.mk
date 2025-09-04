@@ -2,7 +2,7 @@ LOCAL_PATH :=  $(call my-dir)/../code
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := realrtcw_renderer
+LOCAL_MODULE := realrtcw_renderer_5.0
 
 LOCAL_CFLAGS := $(RTCW_LOCAL_CFLAGS)
 LOCAL_C_INCLUDES := $(RTCW_LOCAL_C_INCLUDES)
@@ -27,8 +27,6 @@ PROJECT_FILES += 	sdl/sdl_gamma.c \
 #PROJECT_FILES := $(filter-out $(EXCLUDE), $(PROJECT_FILES))
 
 LOCAL_SRC_FILES := $(PROJECT_FILES)
-
-$(info $(LOCAL_SRC_FILES))
 
 LOCAL_LDLIBS := -lEGL -ldl -llog -lGLESv1_CM
 LOCAL_SHARED_LIBRARIES := SDL2
