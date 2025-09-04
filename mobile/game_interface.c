@@ -257,6 +257,11 @@ void PortableAutomapControl(float zoom, float x, float y)
 
 }
 
+bool PortableSetAlwaysRun(bool run)
+{
+    return false;
+}
+
 // =================== FORWARD and SIDE MOVMENT ==============
 
 float forwardmove, sidemove; //Joystick mode

@@ -2,7 +2,7 @@ LOCAL_PATH :=  $(call my-dir)/../code
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := realrtcw_cgame.sp
+LOCAL_MODULE := realrtcw_cgame.sp_5.0
 
 LOCAL_CFLAGS := $(RTCW_LOCAL_CFLAGS) -DCGAMEDLL
 LOCAL_C_INCLUDES := $(RTCW_LOCAL_C_INCLUDES)
@@ -45,8 +45,6 @@ PROJECT_FILES +=   cgame/cg_main.c \
 
 
 LOCAL_SRC_FILES := $(PROJECT_FILES)
-
-$(info $(LOCAL_SRC_FILES))
 
 LOCAL_LDLIBS := -ldl -llog
 LOCAL_SHARED_LIBRARIES :=

@@ -2,7 +2,7 @@ LOCAL_PATH :=  $(call my-dir)/../code
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := realrtcw_ui.sp
+LOCAL_MODULE := realrtcw_ui.sp_5.0
 
 LOCAL_CFLAGS := $(RTCW_LOCAL_CFLAGS)
 LOCAL_C_INCLUDES := $(RTCW_LOCAL_C_INCLUDES)
