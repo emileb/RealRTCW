@@ -2448,7 +2448,13 @@ void Com_Init( char *commandLine ) {
 	com_frameTime = Com_Milliseconds();
 
 	// add + commands from command line
+#ifdef __ANDROID__  // Change this so the startup video isn't gated on not having command line args
+	Com_AddStartupCommands();
+#endif
+
+#ifndef __ANDROID__
 	if ( !Com_AddStartupCommands() ) {
+#endif
 		// if the user didn't give any commands, run default action
 		if ( !com_dedicated->integer ) {
 #ifdef CINEMATICS_LOGO
@@ -2462,7 +2468,9 @@ void Com_Init( char *commandLine ) {
 			}
 #endif
 		}
+#ifndef __ANDROID__
 	}
+#endif
 
 	// start in full screen ui mode
 	Cvar_Set( "r_uiFullScreen", "1" );
@@ -2796,6 +2804,15 @@ void Com_Frame( void ) {
 
 	Cbuf_Execute();
 
+#ifdef __ANDROID__
+	const char * IN_Android_GetCommand();
+	const char * cmd = IN_Android_GetCommand();
+	if(cmd)
+	{
+		Cmd_ExecuteString( cmd );
+	}
+#endif
+
 	if (com_altivec->modified)
 	{
 		Com_DetectAltivec();
@@ -2840,6 +2857,10 @@ void Com_Frame( void ) {
 	if ( com_speeds->integer ) {
 		timeBeforeEvents = Sys_Milliseconds ();
 	}
+#ifdef __ANDROID__
+	void IN_Android_Commands();
+    IN_Android_Commands();
+#endif
 	Com_EventLoop();
 	Cbuf_Execute ();
 

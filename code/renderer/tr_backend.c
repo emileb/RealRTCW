@@ -409,11 +409,14 @@ to actually render the visible surfaces for this view
 void RB_BeginDrawingView( void ) {
 	int clearBits = 0;
 
+#ifndef __ANDROID__
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !glState.finishCalled ) {
 		qglFinish();
 		glState.finishCalled = qtrue;
 	}
+#endif
+
 	if ( r_finish->integer == 0 ) {
 		glState.finishCalled = qtrue;
 	}
@@ -1126,7 +1129,9 @@ void    RB_SetGL2D( void ) {
 	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001;
 }
 
-
+#ifdef __ANDROID__
+static qboolean drawnCinematic = qfalse;
+#endif
 /*
 =============
 RE_StretchRaw
@@ -1177,6 +1182,10 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 	RB_SetGL2D();
 
 	qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
+
+#ifdef __ANDROID__
+	drawnCinematic = qtrue;
+#endif
 
 #ifdef USE_OPENGLES
 	GLfloat tex[] = {
@@ -1639,10 +1648,11 @@ const void  *RB_SwapBuffers( const void *data ) {
 	}
 #endif
 
-
+#ifndef __ANDROID__
 	if ( !glState.finishCalled ) {
 		qglFinish();
 	}
+#endif
 
 	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
 
@@ -1667,6 +1677,16 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	int t1, t2;
 
 	t1 = ri.Milliseconds();
+
+#ifdef __ANDROID__ // Changed to always clear this, not ideal for performance but loading screen seems to draw partial screen
+	// TODO Check if in game and disable this
+    if(!drawnCinematic)
+    {
+        qglClearColor(0, 0, 0, 1);
+        qglClear(GL_COLOR_BUFFER_BIT);
+    }
+    drawnCinematic = qfalse;
+#endif
 
 	while ( 1 ) {
 		data = PADP(data, sizeof(void *));

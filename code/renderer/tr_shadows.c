@@ -54,7 +54,7 @@ static int facing[SHADER_MAX_INDEXES / 3];
 static vec3_t shadowXyz[SHADER_MAX_VERTEXES];
 
 #ifdef USE_OPENGLES
-static unsigned short indexes[6*MAX_EDGE_DEFS*SHADER_MAX_VERTEXES];
+static unsigned int indexes[6*MAX_EDGE_DEFS*SHADER_MAX_VERTEXES];
 static int idx = 0;
 #endif
 
@@ -165,7 +165,7 @@ void R_RenderShadowEdges( void ) {
 	}
 
 #ifdef USE_OPENGLES
-	qglDrawElements(GL_TRIANGLES, idx, GL_UNSIGNED_SHORT, indexes);
+	qglDrawElements(GL_TRIANGLES, idx, GL_UNSIGNED_INT, indexes);
 #endif
 
 #endif
@@ -267,7 +267,7 @@ void RB_ShadowTessEnd( void ) {
 	qglStencilOp( GL_KEEP, GL_KEEP, GL_DECR );
 
 #ifdef USE_OPENGLES
-	qglDrawElements(GL_TRIANGLES, idx, GL_UNSIGNED_SHORT, indexes);
+	qglDrawElements(GL_TRIANGLES, idx, GL_UNSIGNED_INT, indexes);
 #else
 	R_RenderShadowEdges();
 #endif
