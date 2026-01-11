@@ -837,7 +837,11 @@ AICast_ScriptParse
   Parses the script for the given character
 ==============
 */
+#ifdef __ANDROID__
+#define MAX_SCRIPT_EVENTS   256
+#else
 #define MAX_SCRIPT_EVENTS   128
+#endif
 cast_script_event_t cast_temp_events[MAX_SCRIPT_EVENTS];
 void AICast_ScriptParse( cast_state_t *cs ) {
 	gentity_t   *ent;

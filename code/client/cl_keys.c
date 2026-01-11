@@ -2318,6 +2318,12 @@ void CL_KeyDownEvent( int key, unsigned time )
 			Message_Key( key );
 			return;
 		}
+#ifdef __ANDROID__
+		if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) {
+            Con_Close();
+            return;
+        }
+#endif
 
 		// escape always gets out of CGAME stuff
 		if (Key_GetCatcher( ) & KEYCATCH_CGAME) {

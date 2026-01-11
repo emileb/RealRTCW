@@ -1632,7 +1632,9 @@ static void S_OpenBackgroundStream( const char *filename ) {
 	}
 
 	if(s_backgroundStream->info.channels != 2 || s_backgroundStream->info.rate != 22050) {
+#ifndef __ANDROID__ // Keeps popping up, remove
 		Com_Printf(S_COLOR_YELLOW "WARNING: music file %s is not 22k stereo\n", filename );
+#endif
 	}
 
 	Cvar_Set( "s_currentMusic", s_backgroundLoop ); //----(SA)	so the savegame will have the right music

@@ -308,7 +308,11 @@ G_Script_ScriptParse
   Parses the script for the given entity
 ==============
 */
+#ifdef __ANDROID__
+#define MAX_SCRIPT_EVENTS   256
+#else
 #define MAX_SCRIPT_EVENTS   128
+#endif
 g_script_event_t g_temp_events[MAX_SCRIPT_EVENTS];
 void G_Script_ScriptParse( gentity_t *ent ) {
 	char        *pScript;

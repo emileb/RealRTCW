@@ -805,6 +805,18 @@ static void Upload32(   unsigned *data,
     float rmse;
 #endif
 
+
+#ifdef __ANDROID__
+    static cvar_t *forcePicmip = NULL;
+    if(!forcePicmip)
+    {
+        forcePicmip  = ri.Cvar_Get("forcePicmip", "0", 0);
+    }
+
+    if(forcePicmip->integer)
+        picmip = 1;
+#endif
+
     // do the root mean square error stuff first
     if ( r_rmse->value ) {
         while ( R_RMSE( (byte *)data, width, height ) < r_rmse->value ) {
@@ -817,6 +829,7 @@ static void Upload32(   unsigned *data,
             ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
         }
     }
+
 #ifndef USE_BLOOM
     else
     {
