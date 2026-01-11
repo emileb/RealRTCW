@@ -83,6 +83,11 @@ char *Sys_DefaultHomePath(void)
 			else
 				Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_MACOSX);
 		}
+#elif __ANDROID__
+        {
+			 p1 = getenv( "USER_FILES" );
+			 Com_sprintf(homePath, sizeof(homePath), "%s/realrtcw", p1);
+		};
 #else
 #ifdef USE_XDG
 		if( ( p1 = getenv( "XDG_DATA_HOME" ) ) != NULL )
@@ -786,6 +791,11 @@ Display a *nix dialog box
 */
 dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title )
 {
+#ifdef __ANDROID__
+	LOGI("Sys_Dialog: %s  ---   %s", title, message);
+	return DR_OK;
+#endif
+
 	typedef enum
 	{
 		NONE = 0,
@@ -999,13 +1009,21 @@ qboolean Sys_DllExtension( const char *name ) {
 	return qfalse;
 }
 
+#ifdef __ANDROID__
+extern const char *nativeLibsPath;
+#endif
+
 /*
 ==============
 Sys_GetDLLName
 ==============
 */
 char* Sys_GetDLLName( const char *name ) {
+#ifdef __ANDROID__
+	return va("%s/librealrtcw_%s.sp.so", nativeLibsPath, name);
+#else
 	return va("%s.sp." ARCH_STRING DLL_EXT, name);
+#endif
 }
 
 /*

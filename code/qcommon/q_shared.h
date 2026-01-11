@@ -28,6 +28,13 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
+#ifdef __ANDROID__
+
+#ifndef LOGI
+#include <android/log.h>
+#define LOGI(...)  __android_log_print(ANDROID_LOG_INFO,"REALRTCW",__VA_ARGS__)
+#endif
+#endif
 
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
@@ -62,7 +69,13 @@ If you have questions concerning this license or the applicable additional terms
 #ifdef USE_XDG
   #define HOMEPATH_NAME_UNIX		"RealRTCW"
 #else
+
+#ifdef __ANDROID__
+  #define HOMEPATH_NAME_UNIX		"../user_files/realrtcw"
+#else
   #define HOMEPATH_NAME_UNIX		".realrtcw"
+#endif
+
 #endif
   #define HOMEPATH_NAME_WIN		"RealRTCW"
   #define STEAMPATH_NAME		"Return To Castle Wolfenstein"
@@ -446,8 +459,13 @@ extern vec3_t bytedirs[NUMVERTEXNORMALS];
 #define TINYCHAR_WIDTH      ( SMALLCHAR_WIDTH )
 #define TINYCHAR_HEIGHT     ( SMALLCHAR_HEIGHT / 2 )
 
+#ifdef __ANDROID__
+#define SMALLCHAR_WIDTH     20
+#define SMALLCHAR_HEIGHT    32
+#else
 #define SMALLCHAR_WIDTH     8
 #define SMALLCHAR_HEIGHT    16
+#endif
 
 #define BIGCHAR_WIDTH       16
 #define BIGCHAR_HEIGHT      16

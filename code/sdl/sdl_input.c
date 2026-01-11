@@ -491,6 +491,9 @@ static void IN_InitJoystick( void )
 	}
 
 	sticks = SDL_GetJoysticks(&total);
+#ifdef __ANDROID__ // Skip the joystick list, this fixes corrupt screen on loading as when not displayed the screen is cleared properly
+	total = 0;
+#endif
 	if ( total )
 		//Com_Printf("%d possible joysticks\n", total);
 
@@ -1254,9 +1257,9 @@ void IN_Init( void *windowData )
 
 	in_joystick = Cvar_Get( "in_joystick", "1", CVAR_ARCHIVE );
 	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE );
-
+#ifndef __ANDROID__
 	SDL_StartTextInput( SDL_window );
-
+#endif
 	mouseAvailable = ( in_mouse->value != 0 );
 	IN_DeactivateMouse( Cvar_VariableIntegerValue( "r_fullscreen" ) != 0 );
 
