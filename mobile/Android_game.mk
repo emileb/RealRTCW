@@ -30,6 +30,7 @@ PROJECT_FILES +=    game/g_main.c \
                     game/ai_main.c \
                     game/ai_team.c \
                     game/ai_cast_survival.c \
+                    game/ai_cast_func_hein.c \
                     game/bg_animation.c \
                     game/bg_misc.c \
                     game/bg_pmove.c \
