@@ -1894,10 +1894,12 @@ static int FFMPEG_Init( void ) {
 		NULL 
 	);
 
+
 	if ( ret < 0 ) {
 		Com_Error( ERR_FATAL, "swr_alloc_set_opts2 failed %i\n", ret );
 		return -1;
 	}
+
 
 	if ( ( ret = swr_init( cinTable[currentHandle].swrCtx ) ) < 0 ) {
 		Com_Error( ERR_FATAL, "swr_init failed %i\n", ret );
@@ -2219,6 +2221,10 @@ CIN_PlayCinematic
 ==================
 */
 int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits ) {
+
+#ifdef __ANDROID__ // FFMPEG does not load correctly in swr_init
+    return -1;
+#endif
 	unsigned short RoQID;
 	char name[MAX_OSPATH];
 	int i;
