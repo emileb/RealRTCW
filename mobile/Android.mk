@@ -104,7 +104,7 @@ LOCAL_SRC_FILES =  $(PROJECT_FILES)
 
 LOCAL_LDLIBS := -lEGL -ldl -llog -lOpenSLES -lz -lGLESv1_CM
 LOCAL_STATIC_LIBRARIES := sigc libzip libpng logwritter  SDL2_net realrtcw_botlib.sp
-LOCAL_SHARED_LIBRARIES := touchcontrols SDL2 SDL2_mixer saffal avcodec avformat avutil swscale swresample c++_shared
+LOCAL_SHARED_LIBRARIES := touchcontrols SDL2 SDL2_mixer saffal #avcodec avformat avutil swscale swresample c++_shared
 
 
 include $(BUILD_SHARED_LIBRARY)
