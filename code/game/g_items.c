@@ -482,48 +482,50 @@ void UseHoldableItem( gentity_t *ent, int item ) {
 		}
 		break;
 	case HI_CROSS:
-		const float radius = 512.0f; // tune
-		int touch[MAX_GENTITIES];
-		int num, i;
-		vec3_t mins, maxs, delta;
-		gentity_t *targ;
+    {
+        const float radius = 512.0f; // tune
+        int touch[MAX_GENTITIES];
+        int num, i;
+        vec3_t mins, maxs, delta;
+        gentity_t *targ;
 
-		VectorSet(mins, ent->r.currentOrigin[0] - radius, ent->r.currentOrigin[1] - radius, ent->r.currentOrigin[2] - radius);
-		VectorSet(maxs, ent->r.currentOrigin[0] + radius, ent->r.currentOrigin[1] + radius, ent->r.currentOrigin[2] + radius);
+        VectorSet(mins, ent->r.currentOrigin[0] - radius, ent->r.currentOrigin[1] - radius, ent->r.currentOrigin[2] - radius);
+        VectorSet(maxs, ent->r.currentOrigin[0] + radius, ent->r.currentOrigin[1] + radius, ent->r.currentOrigin[2] + radius);
 
-		num = trap_EntitiesInBox(mins, maxs, touch, MAX_GENTITIES);
+        num = trap_EntitiesInBox(mins, maxs, touch, MAX_GENTITIES);
 
-		if ( !g_cheats.integer ) 
-		{
-		steamSetAchievement("ACH_ITEM_CROSS");
-		}
+        if(!g_cheats.integer)
+        {
+            steamSetAchievement("ACH_ITEM_CROSS");
+        }
 
-		for (i = 0; i < num; i++)
-		{
-			targ = &g_entities[touch[i]];
+        for(i = 0; i < num; i++)
+        {
+            targ = &g_entities[touch[i]];
 
-			if (!targ->inuse || targ->health <= 0)
-				continue;
-			if (!targ->client)
-				continue;
+            if(!targ->inuse || targ->health <= 0)
+                continue;
+            if(!targ->client)
+                continue;
 
-			if (targ->aiCharacter != AICHAR_ZOMBIE 
-				&& targ->aiCharacter != AICHAR_WARZOMBIE 
-				&& targ->aiCharacter != AICHAR_PRIEST 
-				&& targ->aiCharacter != AICHAR_ZOMBIE_SURV 
-				&& targ->aiCharacter != AICHAR_ZOMBIE_GHOST 
-				&& targ->aiCharacter != AICHAR_ZOMBIE_FLAME)
-			{
-				continue;
-			}
+            if(targ->aiCharacter != AICHAR_ZOMBIE
+               && targ->aiCharacter != AICHAR_WARZOMBIE
+               && targ->aiCharacter != AICHAR_PRIEST
+               && targ->aiCharacter != AICHAR_ZOMBIE_SURV
+               && targ->aiCharacter != AICHAR_ZOMBIE_GHOST
+               && targ->aiCharacter != AICHAR_ZOMBIE_FLAME)
+            {
+                continue;
+            }
 
-			// real radius check
-			VectorSubtract(targ->r.currentOrigin, ent->r.currentOrigin, delta);
-			if (VectorLength(delta) > radius)
-				continue;
+            // real radius check
+            VectorSubtract(targ->r.currentOrigin, ent->r.currentOrigin, delta);
+            if(VectorLength(delta) > radius)
+                continue;
 
-			CrossBurn(ent, targ);
-		};
+            CrossBurn(ent, targ);
+        };
+    }
 		break;
 	case HI_EMP:
 	{

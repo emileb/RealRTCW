@@ -35,6 +35,8 @@ RTCW_LOCAL_C_INCLUDES :=     $(SDL_INCLUDE_PATHS)  \
                         $(LOCAL_PATH)/jpeg-8c \
                         $(LOCAL_PATH)/freetype-2.9/include \
                         $(LOCAL_PATH)/libogg-1.3.3/include \
+                        $(TOP_DIR)/Alpha/FFMPEG/include \
+                        $(TOP_DIR)/Alpha/FFMPEG/FFmpeg
 
 
 
@@ -102,7 +104,7 @@ LOCAL_SRC_FILES =  $(PROJECT_FILES)
 
 LOCAL_LDLIBS := -lEGL -ldl -llog -lOpenSLES -lz -lGLESv1_CM
 LOCAL_STATIC_LIBRARIES := sigc libzip libpng logwritter  SDL2_net realrtcw_botlib.sp
-LOCAL_SHARED_LIBRARIES := touchcontrols SDL2  SDL2_mixer saffal
+LOCAL_SHARED_LIBRARIES := touchcontrols SDL2 SDL2_mixer saffal avcodec avformat avutil swscale swresample
 
 
 include $(BUILD_SHARED_LIBRARY)
