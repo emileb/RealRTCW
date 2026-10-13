@@ -1104,8 +1104,8 @@ static void GLimp_InitExtensions( qboolean fixedFunction )
 		//ri.Printf( PRINT_ALL, "...not using GL_ARB_multitexture, %i texture units\n", glConfig.maxActiveTextures );
 		//glConfig.maxActiveTextures=4;
 		qglMultiTexCoord2fARB = myglMultiTexCoord2f;
-		qglActiveTextureARB = SDL_GL_GetProcAddress( "glActiveTexture" );
-		qglClientActiveTextureARB = SDL_GL_GetProcAddress( "glClientActiveTexture" );
+		qglActiveTextureARB = (qglActiveTextureARB_t) SDL_GL_GetProcAddress( "glActiveTexture" );
+		qglClientActiveTextureARB = (qglClientActiveTextureARB_t) SDL_GL_GetProcAddress( "glClientActiveTexture" );
 		if ( glConfig.numTextureUnits > 1 )
 		{
 			ri.Printf( PRINT_ALL, "...using GL_ARB_multitexture (%i texture units)\n", glConfig.numTextureUnits );

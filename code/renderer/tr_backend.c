@@ -1678,6 +1678,10 @@ const void  *RB_SwapBuffers( const void *data ) {
 
 	GLimp_EndFrame();
 
+#ifdef __ANDROID__ // Touch controls bind their own textures during the swap, so drop the cached bindings
+	glState.currenttextures[0] = glState.currenttextures[1] = 0;
+#endif
+
 	if ( fboEnabled ) {
 		FBO_Bind( tr.mainFbo );
 	}

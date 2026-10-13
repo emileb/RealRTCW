@@ -43,6 +43,8 @@ void GLimp_InitExtraExtensions( void )
 
 	Com_Memset( &glRefConfig, 0, sizeof( glRefConfig ) );
 
+#ifndef __ANDROID__ // FBO/ARB effects need desktop GL, GLES1 has neither
+
 	// OpenGL 3.0 - GL_ARB_framebuffer_object
 	extension = "GL_ARB_framebuffer_object";
 	if ( q_gl_version_at_least_3_0 || SDL_GL_ExtensionSupported( extension ) )
@@ -82,4 +84,5 @@ void GLimp_InitExtraExtensions( void )
 	{
 		ri.Printf( PRINT_ALL, result[2], extension );
 	}
+#endif
 }

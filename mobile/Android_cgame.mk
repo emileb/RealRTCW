@@ -37,6 +37,7 @@ PROJECT_FILES +=   cgame/cg_main.c \
                    cgame/cg_sound.c \
                    cgame/cg_trails.c \
                    cgame/cg_view.c \
+                   cgame/cg_speakerscript.c \
                    cgame/cg_weapons.c \
                    cgame/cg_syscalls.c \
                    ui/ui_shared.c \

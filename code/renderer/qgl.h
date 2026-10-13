@@ -35,10 +35,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef USE_OPENGLES
 #ifdef USE_LOCAL_HEADERS
-#	include "SDL_opengles.h"
+#	include "SDL3/SDL_opengles.h"
 #	include "EGL/egl.h"
 #else
-#	include <SDL_opengles.h>
+#	include <SDL3/SDL_opengles.h>
 #	include <EGL/egl.h>
 #endif
 #ifndef APIENTRYP

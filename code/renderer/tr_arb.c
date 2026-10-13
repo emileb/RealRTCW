@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
+#ifndef __ANDROID__ // FBO/ARB effects need desktop GL, GLES1 has neither
+
 static GLuint current_vp = 0;
 static GLuint current_fp = 0;
 
@@ -238,3 +240,9 @@ void FBO_PostProcess( void )
 
 	ARB_ProgramDisable();
 }
+
+#else
+
+qboolean GL_ProgramAvailable( void ) { return qfalse; }
+void FBO_PostProcess( void ) {}
+#endif

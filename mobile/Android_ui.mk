@@ -15,6 +15,7 @@ PROJECT_FILES += 	  ui/ui_main.c \
                       ui/ui_players.c \
                       ui/ui_shared.c \
                       ui/ui_syscalls.c \
+                      steam/steam.c \
                       game/bg_misc.c \
                       game/bg_lib.c \
                       qcommon/q_math.c \

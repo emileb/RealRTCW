@@ -47,8 +47,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "client.h"
 #include "snd_local.h"
 
-#define NO_FFMPEG
-
 #ifndef NO_FFMPEG
 #include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
@@ -93,6 +91,12 @@ static long long FFMPEG_Seek( void *opaque, long long offset, int whence );
 
 static int FFMPEG_ReadFrame( qboolean onlyAudio );
 static int FFMPEG_DecodeVideo( );
+
+#ifdef __ANDROID__ // A video that won't open must not kill the game, CIN_PlayCinematic falls back to RoQ
+#define CIN_FFMPEG_ERROR( ... ) Com_Printf( S_COLOR_YELLOW "WARNING: " __VA_ARGS__ )
+#else
+#define CIN_FFMPEG_ERROR( ... ) Com_Error( ERR_FATAL, __VA_ARGS__ )
+#endif
 #endif
 
 #define MAX_SUBTITLES       256
@@ -1649,6 +1653,28 @@ static void FFMPEG_Interrupt( void ) {
         return;
     }
 
+#ifdef __ANDROID__ // The DMA mixer's raw buffer only holds MAX_RAW_SAMPLES, so feed the predecoded audio in chunks
+	if ( !cinTable[currentHandle].silent &&
+		cinTable[currentHandle].audioPCM.pcm &&
+		cinTable[currentHandle].audioPCM.totalSamples > 0 )
+	{
+		cin_audio_pcm_t *pcm = &cinTable[currentHandle].audioPCM;
+
+		if ( !cinTable[currentHandle].firstAudioFrameFlag ) {
+			S_Update();
+			s_rawend[CIN_STREAM] = s_soundtime;
+			cinTable[currentHandle].firstAudioFrameFlag = qtrue;
+		}
+
+		while ( pcm->playCursor < pcm->totalSamples && s_rawend[CIN_STREAM] < s_soundtime + MAX_RAW_SAMPLES / 2 ) {
+			int chunk = MIN( 1024, pcm->totalSamples - pcm->playCursor );
+
+			S_RawSamples( CIN_STREAM, chunk, pcm->sampleRate, 2, pcm->channels,
+						  (byte *)( pcm->pcm + pcm->playCursor * pcm->channels ), 1.0f, -1 );
+			pcm->playCursor += chunk;
+		}
+	}
+#else
 	if (!cinTable[currentHandle].silent &&
 		cinTable[currentHandle].audioPCM.pcm &&
 		cinTable[currentHandle].audioPCM.totalSamples > 0 &&
@@ -1669,6 +1695,7 @@ static void FFMPEG_Interrupt( void ) {
 			1.0f,
 			-1);
 	}
+#endif
 
 	// read frame
 	FFMPEG_ReadFrame( qfalse );
@@ -1765,12 +1792,12 @@ static int FFMPEG_Init( void ) {
 	cinTable[currentHandle].formatCtx->flags |= AVFMT_FLAG_CUSTOM_IO;
 
 	if ( ( ret = avformat_open_input( &cinTable[currentHandle].formatCtx, NULL, NULL, NULL ) ) < 0 ) {
-    	Com_Error( ERR_FATAL, "avformat_open_input failed %i\n", ret );
+    	CIN_FFMPEG_ERROR( "avformat_open_input failed %i\n", ret );
 		return -1;
 	}
 
 	if ( ( ret = avformat_find_stream_info( cinTable[currentHandle].formatCtx, NULL ) ) < 0 ) {
-		Com_Error( ERR_FATAL, "avformat_find_stream_info failed %i\n", ret );
+		CIN_FFMPEG_ERROR( "avformat_find_stream_info failed %i\n", ret );
 		return -1;
 	}
 
@@ -1784,7 +1811,7 @@ static int FFMPEG_Init( void ) {
 	}
 
 	if ( cinTable[currentHandle].videoStream < 0 ) {
-		Com_Error( ERR_FATAL, "No video stream\n" );
+		CIN_FFMPEG_ERROR( "No video stream\n" );
 	}
 
     cinTable[currentHandle].packet = av_packet_alloc();
@@ -1816,18 +1843,18 @@ static int FFMPEG_Init( void ) {
 
 	cinTable[currentHandle].vCodec = avcodec_find_decoder( vSt->codecpar->codec_id );
 	if ( !cinTable[currentHandle].vCodec ) {
-		Com_Error( ERR_FATAL, "Codec not found\n" );
+		CIN_FFMPEG_ERROR( "Codec not found\n" );
 		return -1;
 	}
 
 	cinTable[currentHandle].vCodecCtx = avcodec_alloc_context3( cinTable[currentHandle].vCodec );
 	if ( !cinTable[currentHandle].vCodecCtx ) {
-		Com_Error( ERR_FATAL, "Could not allocate video codec context\n" );
+		CIN_FFMPEG_ERROR( "Could not allocate video codec context\n" );
         return -1;
     }
 
 	if ( ( ret = avcodec_parameters_to_context( cinTable[currentHandle].vCodecCtx, vSt->codecpar ) ) < 0 ) {
-		Com_Error( ERR_FATAL, "avcodec_parameters_to_context failed %i\n", ret );
+		CIN_FFMPEG_ERROR( "avcodec_parameters_to_context failed %i\n", ret );
 		return -1;
 	}
 
@@ -1835,19 +1862,19 @@ static int FFMPEG_Init( void ) {
 	cinTable[currentHandle].vCodecCtx->thread_count = 0;
 
 	if ( avcodec_open2( cinTable[currentHandle].vCodecCtx, cinTable[currentHandle].vCodec, NULL ) < 0 ) {
-		Com_Error( ERR_FATAL, "Could not open codec\n" );
+		CIN_FFMPEG_ERROR( "Could not open codec\n" );
 		return -1;
     }
 
 	cinTable[currentHandle].vFrame = av_frame_alloc();
     if ( !cinTable[currentHandle].vFrame ) {
-		Com_Error( ERR_FATAL, "Could not allocate video frame\n" );
+		CIN_FFMPEG_ERROR( "Could not allocate video frame\n" );
 		return -1;
     }
 
 	cinTable[currentHandle].vRgbaFrame = av_frame_alloc();
     if ( !cinTable[currentHandle].vRgbaFrame ) {
-		Com_Error( ERR_FATAL, "Could not allocate video rgbaFrame\n" );
+		CIN_FFMPEG_ERROR( "Could not allocate video rgbaFrame\n" );
 		return -1;
     }
 
@@ -1897,29 +1924,29 @@ static int FFMPEG_Init( void ) {
 
 	cinTable[currentHandle].aCodec = avcodec_find_decoder( aSt->codecpar->codec_id );
 	if ( !cinTable[currentHandle].aCodec ) {
-		Com_Error( ERR_FATAL, "Codec not found\n" );
+		CIN_FFMPEG_ERROR( "Codec not found\n" );
 		return -1;
 	}
 
 	cinTable[currentHandle].aCodecCtx = avcodec_alloc_context3( cinTable[currentHandle].aCodec );
 	if ( !cinTable[currentHandle].aCodecCtx ) {
-		Com_Error( ERR_FATAL, "Could not allocate audio codec context\n" );
+		CIN_FFMPEG_ERROR( "Could not allocate audio codec context\n" );
         return -1;
     }
 
 	if ( ( ret = avcodec_parameters_to_context( cinTable[currentHandle].aCodecCtx, aSt->codecpar ) ) < 0 ) {
-		Com_Error( ERR_FATAL, "avcodec_parameters_to_context failed %i\n", ret );
+		CIN_FFMPEG_ERROR( "avcodec_parameters_to_context failed %i\n", ret );
 		return -1;
 	}
 
 	if ( avcodec_open2( cinTable[currentHandle].aCodecCtx, cinTable[currentHandle].aCodec, NULL ) < 0 ) {
-		Com_Error( ERR_FATAL, "Could not open codec\n" );
+		CIN_FFMPEG_ERROR( "Could not open codec\n" );
 		return -1;
     }
 
     cinTable[currentHandle].aFrame = av_frame_alloc();
     if ( !cinTable[currentHandle].aFrame ) {
-		Com_Error( ERR_FATAL, "Could not allocate video aFrame\n" );
+		CIN_FFMPEG_ERROR( "Could not allocate video aFrame\n" );
 		return -1;
     }
 
@@ -1951,13 +1978,13 @@ static int FFMPEG_Init( void ) {
 
 
 	if ( ret < 0 ) {
-		Com_Error( ERR_FATAL, "swr_alloc_set_opts2 failed %i\n", ret );
+		CIN_FFMPEG_ERROR( "swr_alloc_set_opts2 failed %i\n", ret );
 		return -1;
 	}
 
 
 	if ( ( ret = swr_init( cinTable[currentHandle].swrCtx ) ) < 0 ) {
-		Com_Error( ERR_FATAL, "swr_init failed %i\n", ret );
+		CIN_FFMPEG_ERROR( "swr_init failed %i\n", ret );
 		return -1;
 	}
 
@@ -2295,11 +2322,23 @@ e_status CIN_RunCinematic( int handle ) {
 CIN_PlayCinematic
 ==================
 */
+#ifdef __ANDROID__
+// Try the original RoQ with the same name, e.g. wolfintro.webm -> wolfintro.roq
+static int CIN_PlayRoQFallback( const char *arg, int x, int y, int w, int h, int systemBits ) {
+	char roqName[MAX_OSPATH];
+
+	COM_StripExtension( arg, roqName, sizeof( roqName ) );
+	if ( !Q_stricmp( roqName, arg ) ) {
+		return -1;
+	}
+	Q_strcat( roqName, sizeof( roqName ), ".roq" );
+	Com_Printf( "Could not play %s, trying %s\n", arg, roqName );
+	return CIN_PlayCinematic( roqName, x, y, w, h, systemBits );
+}
+#endif
+
 int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits ) {
 
-#ifdef __ANDROID__ // FFMPEG does not load correctly in swr_init
-    return -1;
-#endif
 	unsigned short RoQID;
 	char name[MAX_OSPATH];
 	int i;
@@ -2356,7 +2395,11 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 			Com_DPrintf( "play(%s), file not found or unreadable\n", arg );
 			cinTable[currentHandle].fileName[0] = 0;
 			cinTable[currentHandle].iFile = 0;
+#ifdef __ANDROID__
+			return CIN_PlayRoQFallback( arg, x, y, w, h, systemBits );
+#else
 			return -1;
+#endif
 		}
 	}
 
@@ -2457,7 +2500,11 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 			return currentHandle;
 		} else {
 			FFMPEG_Shutdown();
+#ifdef __ANDROID__
+			return CIN_PlayRoQFallback( arg, x, y, w, h, systemBits );
+#else
 			return -1;
+#endif
 		}
 #endif
 	}

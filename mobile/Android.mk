@@ -11,7 +11,7 @@ RTCW_LOCAL_CFLAGS :=  -DQUAKE3 -DENGINE_NAME=\"realrtcw\" -Wall -fno-strict-alia
                                                        -DFT2_BUILD_LIBRARY -DUSE_LOCAL_HEADERS -DPRODUCT_VERSION=\"1.51d-SP_GIT_191e8d10-2022-04-09\" -Wformat=2 \
                                                        -Wformat-security -Wno-format-nonliteral -Wstrict-aliasing=2 -Wmissing-format-attribute -Wdisabled-optimization \
                                                        -MMD -DNDEBUG -DHAVE_LRINTF -DFLOATING_POINT -DFLOAT_APPROX \
-                                                       -DUSE_ALLOCA -DUSE_RENDERER_DLOPEN  -DIOAPI_NO_64  \
+                                                       -DUSE_ALLOCA -DUSE_RENDERER_DLOPEN  -DIOAPI_NO_64 -DUSE_SDL3 \
 
 # This is needed to stop 32bit arm crashing. Otherwise unaligned float access.. Not a great fix..
 RTCW_LOCAL_CFLAGS +=  -Ofast
@@ -23,7 +23,7 @@ RTCW_LOCAL_CFLAGS +=  -Ofast
 LOCAL_CFLAGS := $(RTCW_LOCAL_CFLAGS)
 
 
-RTCW_LOCAL_C_INCLUDES :=     $(SDL_INCLUDE_PATHS)  \
+RTCW_LOCAL_C_INCLUDES :=     $(SDL3_INCLUDE_PATHS)  \
                         $(TOP_DIR) \
                         $(TOP_DIR)/MobileTouchControls \
                         $(TOP_DIR)/Clibs_OpenTouch \
@@ -103,8 +103,8 @@ LOCAL_SRC_FILES =  $(PROJECT_FILES)
 
 
 LOCAL_LDLIBS := -lEGL -ldl -llog -lOpenSLES -lz -lGLESv1_CM
-LOCAL_STATIC_LIBRARIES := sigc libzip libpng logwritter  SDL2_net realrtcw_botlib.sp
-LOCAL_SHARED_LIBRARIES := touchcontrols SDL2 SDL2_mixer saffal #avcodec avformat avutil swscale swresample c++_shared
+LOCAL_STATIC_LIBRARIES := sigc libzip libpng logwritter realrtcw_botlib.sp ffmpeg-avformat ffmpeg-avcodec ffmpeg-swscale ffmpeg-swresample ffmpeg-avutil
+LOCAL_SHARED_LIBRARIES := touchcontrols SDL3 saffal #avcodec avformat avutil swscale swresample c++_shared
 
 
 include $(BUILD_SHARED_LIBRARY)

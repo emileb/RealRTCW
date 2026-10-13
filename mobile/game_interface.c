@@ -2,8 +2,8 @@
 
 #include "game_interface.h"
 
-#include "SDL.h"
-#include "SDL_keycode.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_keycode.h"
 
 
 #include "..//client/client.h"
@@ -24,16 +24,16 @@ void PortableInit(int argc, const char **argv)
 }
 
 
-extern int SDL_SendKeyboardKey(Uint8 state, SDL_Scancode scancode);
+SDL_Window *window = NULL; // Set by IN_Init, used by touch_interface_base for text input
+
+#define SDL_DEFAULT_KEYBOARD_ID    1
+extern bool SDL_SendKeyboardKey(Uint64 timestamp, SDL_KeyboardID keyboardID, int rawcode, SDL_Scancode scancode, bool down);
 
 int PortableKeyEvent(int state, int code, int unitcode)
 {
     LOGI("PortableKeyEvent %d %d", state, code);
 
-    if (state)
-        SDL_SendKeyboardKey(SDL_PRESSED, (SDL_Scancode) code);
-    else
-        SDL_SendKeyboardKey(SDL_RELEASED, (SDL_Scancode) code);
+    SDL_SendKeyboardKey(0, SDL_DEFAULT_KEYBOARD_ID, 0, (SDL_Scancode) code, state != 0);
 
     return 0;
 }

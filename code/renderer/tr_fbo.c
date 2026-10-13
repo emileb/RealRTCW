@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
+#ifndef __ANDROID__ // FBO/ARB effects need desktop GL, GLES1 has neither
+
 qboolean fboEnabled = qfalse;
 
 static FBO_t *currentFbo = NULL;
@@ -336,3 +338,13 @@ void R_FBOList_f( void )
 	ri.Printf( PRINT_ALL, "  %4i %4i  %s\n", tr.mainFbo->width, tr.mainFbo->height, tr.mainFbo->name );
 	ri.Printf( PRINT_ALL, " 1 FBO\n" );
 }
+
+#else
+
+qboolean fboEnabled = qfalse;
+
+void FBO_Bind( FBO_t *fbo ) {}
+void FBO_Init( void ) {}
+void FBO_Shutdown( void ) {}
+void R_FBOList_f( void ) {}
+#endif

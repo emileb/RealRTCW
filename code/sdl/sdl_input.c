@@ -58,6 +58,9 @@ static int vidRestartTime = 0;
 static int in_eventTime = 0;
 
 static SDL_Window *SDL_window = NULL;
+#ifdef __ANDROID__
+extern SDL_Window *window; // Used by the touch controls for text input
+#endif
 
 #define CTRL(a) ((a)-'a'+1)
 
@@ -1246,6 +1249,9 @@ void IN_Init( void *windowData )
 	}
 
 	SDL_window = (SDL_Window *)windowData;
+#ifdef __ANDROID__
+	window = SDL_window;
+#endif
 
 	Com_DPrintf( "\n------- Input Initialization -------\n" );
 
